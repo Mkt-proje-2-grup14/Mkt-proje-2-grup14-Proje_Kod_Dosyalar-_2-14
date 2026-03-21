@@ -6,7 +6,7 @@
 #define MAX_LINE 1024
 #define MAX_SATIR 1000
 
-// Küçük harfe çevirme
+// KÃ¼Ã§Ã¼k harfe Ã§evirme
 void toLowerCase(char *str) {
     for (int i = 0; str[i]; i++) {
         str[i] = tolower(str[i]);
@@ -59,7 +59,7 @@ int main() {
             ptr += strlen(arananKelime);
         }
 
-        // Eðer bu satýrda bulunduysa kaydet
+        // EÄŸer bu satÄ±rda bulunduysa kaydet
         if (buSatirdaVar) {
             bulunanSatirlar[bulunanSatirSayisi++] = satirNo;
             printf("  -> Bu satirda kelime bulundu!\n");
