@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_LINE_LEN 1024
+
+int main() {
+    char dosya_adi[100], aranan_kelime[50];
+    char satir[MAX_LINE_LEN];
+    int satir_numarasi = 1;
+    int toplam_tekrar = 0;
+    FILE *dosya;
+
+    printf("Dosya adini girin: ");
+    scanf("%s", dosya_adi);
+    printf("Aranacak kelimeyi girin: ");
+    scanf("%s", aranan_kelime);
+
+    dosya = fopen(dosya_adi, "r");
+
+    if (dosya == NULL) {
+        printf("Hata: Dosya acilamadi!\n");
+        return 1;
+    }
+
+    printf("\n--- Sonuclar ---\n");
+
+    // Dosyayı satır satır oku
+    while (fgets(satir, MAX_LINE_LEN, dosya) != NULL) {
+        char *ptr = satir;
+
+        // Bir satırda kelime birden fazla geçebilir, bu yüzden döngü kullanıyoruz
+        while ((ptr = strstr(ptr, aranan_kelime)) != NULL) {
+            toplam_tekrar++;
+            printf("Satir %d: Kelime bulundu.\n", satir_numarasi);
+            
+            // Aynı satırda bir sonraki eşleşmeyi bulmak için imleci kaydır
+            ptr += strlen(aranan_kelime);
+        }
+        satir_numarasi++;
+    }
+
+    printf("----------------\n");
+    printf("'%s' kelimesi toplam %d kez gecti.\n", aranan_kelime, toplam_tekrar);
+
+    fclose(dosya);
+    return 0;
+}
