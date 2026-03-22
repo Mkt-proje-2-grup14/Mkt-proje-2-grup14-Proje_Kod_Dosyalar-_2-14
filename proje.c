@@ -3,17 +3,21 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_LINE 1024
+#define MAX_LINE 1000
 #define MAX_SATIR 1000
 
-// KÃ¼Ã§Ã¼k harfe Ã§evirme
+// Küçük harfe çevirme fonksiyonu
 void toLowerCase(char *str) {
-    for (int i = 0; str[i]; i++) {
-        str[i] = tolower(str[i]);
+    int i;
+    for (i = 0; str[i]; i++) {
+        str[i] = (char)tolower((unsigned char)str[i]);
     }
 }
 
 int main() {
+	
+	system("COLOR D");
+    
     char dosyaAdi[100];
     char arananKelime[100];
     char satir[MAX_LINE];
@@ -23,15 +27,18 @@ int main() {
     int toplamTekrar = 0;
     int bulunanSatirlar[MAX_SATIR];
     int bulunanSatirSayisi = 0;
+    int i;
 
     FILE *dosya;
 
-  	printf("Dosya adini giriniz: ");
-	fgets(dosyaAdi, sizeof(dosyaAdi), stdin);
-	dosyaAdi[strcspn(dosyaAdi, "\n")] = 0;
+    printf("Dosya adini giriniz: ");
+    if (fgets(dosyaAdi, sizeof(dosyaAdi), stdin) != NULL) {
+        dosyaAdi[strcspn(dosyaAdi, "\n")] = 0;
+    }
 
+    dosya = fopen(dosyaAdi, "r");
     if (dosya == NULL) {
-       printf("HATA: Dosya acilamadi!\n");
+        printf("HATA: Dosya acilamadi! Dosyanin .c dosyasiyla ayni klasorde oldugundan emin olun.\n");
         return 1;
     }
 
@@ -40,29 +47,27 @@ int main() {
 
     toLowerCase(arananKelime);
 
-    dosya = fopen(dosyaAdi, "r");
-
-    printf("\n--- DOSYA ICERIGI ---\n");
-
+    // Ana döngü: Dosyayý satýr satýr oku
     while (fgets(satir, MAX_LINE, dosya) != NULL) {
-        printf("%d. satir: %s", satirNo, satir);
-
         strcpy(geciciSatir, satir);
         toLowerCase(geciciSatir);
 
         char *ptr = geciciSatir;
-        int buSatirdaVar = 0;
+        int buSatirdaKacDefa = 0;
 
+        // Kelimeyi satýr içinde ara
         while ((ptr = strstr(ptr, arananKelime)) != NULL) {
             toplamTekrar++;
-            buSatirdaVar = 1;
+            buSatirdaKacDefa++;
             ptr += strlen(arananKelime);
         }
 
-        // EÄŸer bu satÄ±rda bulunduysa kaydet
-        if (buSatirdaVar) {
-            bulunanSatirlar[bulunanSatirSayisi++] = satirNo;
-            printf("  -> Bu satirda kelime bulundu!\n");
+        // Eðer kelime bu satýrda geçtiyse yazdýr
+        if (buSatirdaKacDefa > 0) {
+            if (bulunanSatirSayisi < MAX_SATIR) {
+                bulunanSatirlar[bulunanSatirSayisi++] = satirNo;
+            }
+            printf("%d. satirda '%s' kelimesi %d kez gecti.\n", satirNo, arananKelime, buSatirdaKacDefa);
         }
 
         satirNo++;
@@ -74,36 +79,13 @@ int main() {
     printf("\n========== RAPOR ==========\n");
     printf("Aranan kelime: %s\n", arananKelime);
     printf("Toplam tekrar sayisi: %d\n", toplamTekrar);
-    printf("Kelimenin gectigi farkli satir sayisi: %d\n", bulunanSatirSayisi);
+    printf("Gectigi farkli satir sayisi: %d\n", bulunanSatirSayisi);
 
     printf("Gectigi satir numaralari: ");
-    for (int i = 0; i < bulunanSatirSayisi; i++) {
+    for (i = 0; i < bulunanSatirSayisi; i++) {
         printf("%d ", bulunanSatirlar[i]);
     }
-
     printf("\n===========================\n");
-
-    // -------- BONUS: RAPORU DOSYAYA YAZ --------
-    FILE *rapor = fopen("rapor.txt", "w");
-
-    if (rapor != NULL) {
-        fprintf(rapor, "========== RAPOR ==========\n");
-        fprintf(rapor, "Aranan kelime: %s\n", arananKelime);
-        fprintf(rapor, "Toplam tekrar sayisi: %d\n", toplamTekrar);
-        fprintf(rapor, "Farkli satir sayisi: %d\n", bulunanSatirSayisi);
-
-        fprintf(rapor, "Satirlar: ");
-        for (int i = 0; i < bulunanSatirSayisi; i++) {
-            fprintf(rapor, "%d ", bulunanSatirlar[i]);
-        }
-
-        fprintf(rapor, "\n===========================\n");
-        fclose(rapor);
-
-        printf("\nRapor 'rapor.txt' dosyasina yazildi.\n");
-    } else {
-        printf("\nRapor dosyasi olusturulamadi.\n");
-    }
 
     return 0;
 }
